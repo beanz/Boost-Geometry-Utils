@@ -1,3 +1,4 @@
 polygon*	T_PTROBJ
 linestring*	T_PTROBJ
 multilinestring*	T_PTROBJ
+point_xy*	T_PTROBJ

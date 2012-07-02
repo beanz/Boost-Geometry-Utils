@@ -3,3 +3,4 @@
 %typemap{polygon};
 %typemap{linestring};
 %typemap{multilinestring};
+%typemap{point_xy};

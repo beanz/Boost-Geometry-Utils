@@ -44,4 +44,22 @@ _multilinestring_to_wkt(mls)
   OUTPUT:
     RETVAL
 
+point_xy*
+_read_wkt_point(wkt)
+    std::string& wkt
+  CODE:
+    RETVAL = new point_xy ();
+    boost::geometry::read_wkt(wkt, *RETVAL);
+  OUTPUT:
+    RETVAL
+
+int
+_point_in_polygon(my_point_xy, my_polygon)
+    point_xy* my_point_xy
+    polygon* my_polygon
+  CODE:
+    RETVAL = boost::geometry::within(*my_point_xy, *my_polygon);
+  OUTPUT:
+    RETVAL
+
 %}
