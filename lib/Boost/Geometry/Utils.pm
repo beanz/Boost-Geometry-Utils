@@ -9,10 +9,11 @@ our @ISA = qw(Exporter);
 use XSLoader;
 XSLoader::load('Boost::Geometry::Utils', $Boost::Geometry::Utils::VERSION);
 
-our @EXPORT_OK = qw(polygon_to_wkt linestring_to_wkt wkt_to_multilinestring
-    polygon linestring
+our @EXPORT_OK = qw(polygon_to_wkt multilinestring_to_wkt wkt_to_multilinestring
+    polygon multilinestring linestring
     polygon_linestring_intersection
-    point point_to_wkt point_in_polygon);
+    point point_to_wkt point_in_polygon
+    linestring_to_wkt linestring_simplify);
 
 sub point_to_wkt {
     sprintf 'POINT(%s)', join ' ', @{$_[0]};
@@ -22,8 +23,12 @@ sub polygon_to_wkt {
     sprintf 'POLYGON(%s)', join ',', map { sprintf '(%s)', join ',', map { join ' ', @$_ } @$_ } @_;
 }
 
-sub linestring_to_wkt {
+sub multilinestring_to_wkt {
     sprintf "MULTILINESTRING(%s)", join ',', map { sprintf '(%s)', join ',', map { join ' ', @$_ } @$_ } @_;
+}
+
+sub linestring_to_wkt {
+    sprintf "LINESTRING(%s)", join ',', map { join ' ', @$_ } @{$_[0]};
 }
 
 sub wkt_to_multilinestring {
@@ -31,6 +36,13 @@ sub wkt_to_multilinestring {
     $_[0] =~ s/^MULTILINESTRING\(\(//;
     $_[0] =~ s/\)\)$//;
     [ map [ map [ split / / ], split /,/ ], split /\),\(/, $_[0] ];
+}
+
+sub wkt_to_linestring {
+    return [] if $_[0] eq 'LINESTRING()';
+    $_[0] =~ s/^LINESTRING\(//;
+    $_[0] =~ s/\)$//;
+    [ map [ split / / ], split /,/, $_[0] ];
 }
 
 sub point {
@@ -45,12 +57,20 @@ sub linestring {
     _read_wkt_linestring(linestring_to_wkt(@_));
 }
 
+sub multilinestring {
+    _read_wkt_multilinestring(multilinestring_to_wkt(@_));
+}
+
 sub polygon_linestring_intersection {
     wkt_to_multilinestring(_multilinestring_to_wkt(_polygon_linestring_intersection(@_)));
 }
 
 sub point_in_polygon {
     _point_in_polygon(@_);
+}
+
+sub linestring_simplify {
+    wkt_to_linestring(_linestring_to_wkt(_linestring_simplify(@_)));
 }
 
 1;
@@ -117,7 +137,7 @@ Note that such an intersection is also called I<clipping>.
 Converts one or more arrayref(s) of points to a WKT representation of
 a polygon (with holes).
 
-=head2 linestring_to_wkt
+=head2 multilinestring_to_wkt
 
 Converts an arrayref of points to a WKT representation of a multilinestring.
 

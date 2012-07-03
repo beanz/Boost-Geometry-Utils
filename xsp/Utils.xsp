@@ -16,10 +16,19 @@ _read_wkt_polygon(wkt)
     RETVAL
 
 multilinestring*
-_read_wkt_linestring(wkt)
+_read_wkt_multilinestring(wkt)
     std::string& wkt
   CODE:
     RETVAL = new multilinestring ();
+    boost::geometry::read_wkt(wkt, *RETVAL);
+  OUTPUT:
+    RETVAL
+
+linestring*
+_read_wkt_linestring(wkt)
+    std::string& wkt
+  CODE:
+    RETVAL = new linestring ();
     boost::geometry::read_wkt(wkt, *RETVAL);
   OUTPUT:
     RETVAL
@@ -44,6 +53,16 @@ _multilinestring_to_wkt(mls)
   OUTPUT:
     RETVAL
 
+std::string
+_linestring_to_wkt(mls)
+    linestring* mls
+  CODE:
+    std::ostringstream output;
+    output << boost::geometry::wkt(*mls);
+    RETVAL = output.str();
+  OUTPUT:
+    RETVAL
+
 point_xy*
 _read_wkt_point(wkt)
     std::string& wkt
@@ -59,6 +78,16 @@ _point_in_polygon(my_point_xy, my_polygon)
     polygon* my_polygon
   CODE:
     RETVAL = boost::geometry::within(*my_point_xy, *my_polygon);
+  OUTPUT:
+    RETVAL
+
+linestring*
+_linestring_simplify(my_linestring, threshold)
+    linestring* my_linestring
+    const double threshold
+  CODE:
+    RETVAL = new linestring ();
+    boost::geometry::simplify(*my_linestring, *RETVAL, threshold);
   OUTPUT:
     RETVAL
 
